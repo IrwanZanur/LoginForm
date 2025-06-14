@@ -53,10 +53,11 @@
 </div>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbzlWnbSZbbQvVK_FQ8U_q4EBYX4On8dILVN6OE5bwu_o5dEMGrU6MvTeYO022BDuFO_ew/exec"; // Ganti dengan URL Web App Anda
+const proxyURL = "https://cors-anywhere.herokuapp.com/";
+const scriptURL = "https://script.google.com/macros/s/AKfycbzlWnbSZbbQvVK_FQ8U_q4EBYX4On8dILVN6OE5bwu_o5dEMGrU6MvTeYO022BDuFO_ew/exec";
 
 // LOAD NIS
-fetch(`${scriptURL}?action=getNIS`)
+fetch(`${proxyURL}${scriptURL}?action=getNIS`)
   .then(res => res.json())
   .then(data => {
     const dropdown = document.getElementById("nisDropdown");
@@ -78,7 +79,7 @@ document.getElementById("penilaianForm").addEventListener("submit", function(e) 
   e.preventDefault();
   const data = Object.fromEntries(new FormData(this).entries());
 
-  fetch(scriptURL, {
+  fetch(proxyURL + scriptURL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -95,6 +96,7 @@ document.getElementById("penilaianForm").addEventListener("submit", function(e) 
     }
   })
   .catch(err => {
+    console.error("Error kirim data:", err);
     document.getElementById("status").textContent = "❌ Gagal mengirim data.";
   });
 });
@@ -102,4 +104,5 @@ document.getElementById("penilaianForm").addEventListener("submit", function(e) 
 
 </body>
 </html>
+
 
