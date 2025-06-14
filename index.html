@@ -25,12 +25,14 @@
     <select name="nis" id="nisDropdown" required>
       <option value="">-- Pilih NIS --</option>
     </select>
+
     <label for="mapel">Mata Pelajaran:</label>
     <select name="mapel" required>
       <option value="B. Indonesia">B. Indonesia</option>
       <option value="Matematika">Matematika</option>
       <option value="Produktif">Produktif</option>
     </select>
+
     <label for="jenis">Jenis Penilaian:</label>
     <select name="jenis" required>
       <option value="UH">UH</option>
@@ -38,19 +40,22 @@
       <option value="UAS">UAS</option>
       <option value="Praktik">Praktik</option>
     </select>
+
     <label for="nilai">Nilai:</label>
     <input type="number" name="nilai" min="0" max="100" required>
+
     <label for="catatan">Catatan:</label>
     <textarea name="catatan" rows="3"></textarea>
+
     <button type="submit">Kirim</button>
     <p id="status"></p>
   </form>
 </div>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbyiqSkAwn1NDBb5eZviCzMA5coql4fzfCFmrZmeSZSdVUMr86zOgokR1yWIlvfSpTtAag/exec"; // Ganti dengan script URL Anda
+const scriptURL = "https://script.google.com/macros/s/AKfycbzlWnbSZbbQvVK_FQ8U_q4EBYX4On8dILVN6OE5bwu_o5dEMGrU6MvTeYO022BDuFO_ew/exec"; // Ganti dengan URL Web App Anda
 
-// LOAD NIS (opsional bisa disesuaikan)
+// LOAD NIS
 fetch(`${scriptURL}?action=getNIS`)
   .then(res => res.json())
   .then(data => {
@@ -63,7 +68,8 @@ fetch(`${scriptURL}?action=getNIS`)
     });
     document.getElementById("formContainer").classList.remove("hidden");
   })
-  .catch(() => {
+  .catch(err => {
+    console.error("Error saat memuat NIS:", err);
     document.getElementById("nisDropdown").innerHTML = `<option value="">Gagal memuat NIS</option>`;
   });
 
@@ -96,3 +102,4 @@ document.getElementById("penilaianForm").addEventListener("submit", function(e) 
 
 </body>
 </html>
+
