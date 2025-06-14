@@ -3,106 +3,92 @@
 <head>
   <meta charset="UTF-8">
   <title>Form Penilaian</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
   <style>
-    body { font-family: Arial; background: #eef2f7; }
-    .container { max-width: 420px; margin: 80px auto; padding: 30px; background: white; border-radius: 12px; box-shadow: 0 0 12px rgba(0,0,0,0.1); }
-    h2 { text-align: center; margin-bottom: 20px; }
-    input, button, select, textarea { width: 100%; padding: 10px; margin-top: 10px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; }
-    button { background: #4a69bd; color: white; font-weight: bold; }
-    button:hover { background: #3b55a0; cursor: pointer; }
-    .hidden { display: none; }
-    label { margin-top: 10px; display: block; font-weight: bold; }
-    #status { margin-top: 15px; font-weight: bold; color: green; text-align: center; }
+    body { font-family: sans-serif; background: #f5f5f5; }
+    .form-container {
+      max-width: 500px; margin: 50px auto;
+      background: white; padding: 20px;
+      border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label { display: block; margin-top: 15px; font-weight: bold; }
+    input, select, textarea {
+      width: 100%; padding: 10px; margin-top: 5px;
+      border-radius: 5px; border: 1px solid #ccc;
+    }
+    button {
+      margin-top: 20px; padding: 10px;
+      width: 100%; background: #28a745; color: white;
+      border: none; border-radius: 5px;
+      font-weight: bold; cursor: pointer;
+    }
+    #status { text-align: center; margin-top: 15px; font-weight: bold; }
   </style>
 </head>
 <body>
+  <div class="form-container">
+    <h2>Form Penilaian Siswa</h2>
+    <form id="penilaianForm">
+      <label>NIS:</label>
+      <input type="text" name="nis" required>
 
-<div class="container hidden" id="formContainer">
-  <h2>Form Penilaian Siswa</h2>
-  <form id="penilaianForm">
-    <label for="nis">NIS:</label>
-    <select name="nis" id="nisDropdown" required>
-      <option value="">-- Pilih NIS --</option>
-    </select>
+      <label>Mata Pelajaran:</label>
+      <select name="mapel" required>
+        <option value="B. Indonesia">B. Indonesia</option>
+        <option value="Matematika">Matematika</option>
+        <option value="Produktif">Produktif</option>
+      </select>
 
-    <label for="mapel">Mata Pelajaran:</label>
-    <select name="mapel" required>
-      <option value="B. Indonesia">B. Indonesia</option>
-      <option value="Matematika">Matematika</option>
-      <option value="Produktif">Produktif</option>
-    </select>
+      <label>Jenis Penilaian:</label>
+      <select name="jenis" required>
+        <option value="UH">UH</option>
+        <option value="UTS">UTS</option>
+        <option value="UAS">UAS</option>
+        <option value="Praktik">Praktik</option>
+      </select>
 
-    <label for="jenis">Jenis Penilaian:</label>
-    <select name="jenis" required>
-      <option value="UH">UH</option>
-      <option value="UTS">UTS</option>
-      <option value="UAS">UAS</option>
-      <option value="Praktik">Praktik</option>
-    </select>
+      <label>Nilai:</label>
+      <input type="number" name="nilai" min="0" max="100" required>
 
-    <label for="nilai">Nilai:</label>
-    <input type="number" name="nilai" min="0" max="100" required>
+      <label>Catatan:</label>
+      <textarea name="catatan" rows="3"></textarea>
 
-    <label for="catatan">Catatan:</label>
-    <textarea name="catatan" rows="3"></textarea>
+      <button type="submit">Kirim</button>
+    </form>
+    <div id="status"></div>
+  </div>
 
-    <button type="submit">Kirim</button>
-    <p id="status"></p>
-  </form>
-</div>
+  <script>
+    const form = document.getElementById("penilaianForm");
+    const status = document.getElementById("status");
 
-<script>
-const proxyURL = "https://cors-anywhere.herokuapp.com/";
-const scriptURL = "https://script.google.com/macros/s/AKfycbzlWnbSZbbQvVK_FQ8U_q4EBYX4On8dILVN6OE5bwu_o5dEMGrU6MvTeYO022BDuFO_ew/exec";
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwWYDOsgdomSJ9i-Hx8Yn6CetrCmRKcgGtEIMawaUP_mylahoNm6wqEez1haW8JBWmgcw/exec';
 
-// LOAD NIS
-fetch(`${proxyURL}${scriptURL}?action=getNIS`)
-  .then(res => res.json())
-  .then(data => {
-    const dropdown = document.getElementById("nisDropdown");
-    data.forEach(siswa => {
-      const option = document.createElement("option");
-      option.value = siswa.nis;
-      option.textContent = `${siswa.nis} - ${siswa.nama}`;
-      dropdown.appendChild(option);
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+
+      fetch(scriptURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(response => {
+        if (response.status === "success") {
+          status.textContent = "✅ Data berhasil dikirim!";
+          form.reset();
+        } else {
+          status.textContent = "❌ Gagal: " + response.message;
+        }
+      })
+      .catch(err => {
+        status.textContent = "❌ Error koneksi!";
+        console.error(err);
+      });
     });
-    document.getElementById("formContainer").classList.remove("hidden");
-  })
-  .catch(err => {
-    console.error("Error saat memuat NIS:", err);
-    document.getElementById("nisDropdown").innerHTML = `<option value="">Gagal memuat NIS</option>`;
-  });
-
-// KIRIM PENILAIAN
-document.getElementById("penilaianForm").addEventListener("submit", function(e) {
-  e.preventDefault();
-  const data = Object.fromEntries(new FormData(this).entries());
-
-  fetch(proxyURL + scriptURL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  })
-  .then(res => res.json())
-  .then(result => {
-    if (result.status === "success") {
-      document.getElementById("status").textContent = "✅ Data berhasil dikirim!";
-      e.target.reset();
-    } else {
-      document.getElementById("status").textContent = "❌ Error: " + result.message;
-    }
-  })
-  .catch(err => {
-    console.error("Error kirim data:", err);
-    document.getElementById("status").textContent = "❌ Gagal mengirim data.";
-  });
-});
-</script>
-
+  </script>
 </body>
 </html>
+
 
 
